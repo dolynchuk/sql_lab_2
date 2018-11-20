@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-
 from backend.backend.app import create_app
-
 
 app = create_app()
 

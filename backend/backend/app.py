@@ -1,6 +1,6 @@
 import os
-
 from flask import Flask
+
 
 CONFIG = os.environ.get('CONFIG', 'Debug')
 
