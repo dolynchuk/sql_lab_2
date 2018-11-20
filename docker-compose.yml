@@ -1,0 +1,40 @@
+version: "2"
+
+services:
+  app:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    command: ["yarn", "start"]
+    expose:
+      - "3000"
+    ports:
+      - "3000:3000"
+    volumes:
+      - "./app/public:/app/public"
+      - "./app/build:/app/build"
+      - "./app/src:/app/src"
+    links:
+      - backend
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    expose:
+      - 5000
+    command: [
+      "uwsgi",
+      "--http", "0.0.0.0:5000",
+      "--wsgi-file", "runserver.py",
+      "--callable", "app",
+      "--catch-exceptions",
+      "--processes", "1",
+      "--py-autoreload", "3"
+    ]
+    environment:
+      - "CONFIG=Debug"
+    ports:
+      - "5000:5000"
+    volumes:
+      - "./backend:/app/backend"
