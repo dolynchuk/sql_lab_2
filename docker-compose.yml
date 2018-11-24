@@ -5,15 +5,16 @@ services:
     build:
       context: ./app
       dockerfile: Dockerfile
+    restart: always
     command: ["yarn", "start"]
     expose:
-      - "3000"
+      - 3000
     ports:
-      - "3000:3000"
+      - 3000:3000
     volumes:
-      - "./app/public:/app/public"
-      - "./app/build:/app/build"
-      - "./app/src:/app/src"
+      - ./app/public:/app/public
+      - ./app/build:/app/build
+      - ./app/src:/app/src
     links:
       - backend
 
@@ -21,6 +22,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    restart: always
     expose:
       - 5000
     command: [
@@ -33,8 +35,8 @@ services:
       "--py-autoreload", "3"
     ]
     environment:
-      - "CONFIG=Debug"
+      - CONFIG=Debug
     ports:
-      - "5000:5000"
+      - 5000:5000
     volumes:
-      - "./backend:/app/backend"
+      - ./backend:/app/backend
