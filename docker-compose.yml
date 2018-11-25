@@ -17,6 +17,8 @@ services:
       - ./app/src:/app/src
     links:
       - backend
+    external_links:
+      - backend
 
   backend:
     build:
@@ -36,7 +38,5 @@ services:
     ]
     environment:
       - CONFIG=Debug
-    ports:
-      - 5000:5000
     volumes:
       - ./backend:/app/backend

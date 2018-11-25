@@ -18,3 +18,14 @@ class Users(db.Model):
         )
         db.session.add(new_user)
         return new_user
+
+    def update(self, name, surname, age):
+        if not name or not surname or not age:
+            return 'ERROR'
+
+        self.name = name
+        self.surname = surname
+        self.age = age
+        db.session.commit()
+
+        return 'OK'
