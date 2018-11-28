@@ -14,3 +14,12 @@ class Groups(db.Model):
         )
         db.session.add(new_group)
         return new_group
+
+    def update(self, name):
+        if not name:
+            return 'ERROR'
+
+        self.name = name
+        db.session.commit()
+
+        return 'OK'

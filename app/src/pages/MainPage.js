@@ -84,8 +84,9 @@ export default class extends Component {
         />
         <GroupEditDialog
           open={isGroupEditDialogOpen}
-          group={openGroupId}
+          groupId={openGroupId}
           onClose={this.handleGroupEditDialogClose}
+          onGroupsChange={groups => this.setState({groups})}
         />
       </div>
     );

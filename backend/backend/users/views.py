@@ -125,6 +125,13 @@ def delete():
     if not user_model:
         return 'ERROR'
 
+    groups_users_list = GroupsUsers.query.filter_by(
+        user_id=user_id
+    ).all()
+
+    for groups_users_model in groups_users_list:
+        db.session.delete(groups_users_model)
+
     db.session.delete(user_model)
     db.session.commit()
     return 'OK'
