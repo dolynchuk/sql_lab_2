@@ -3,7 +3,6 @@ import UserEditDialog from 'components/UserEditDialog';
 import GroupEditDialog from 'components/GroupEditDialog';
 import UsersTable from 'components/UsersTable';
 import GroupsTable from 'components/GroupsTable';
-import Statistics from 'components/Statistics';
 
 export default class extends Component {
   state = {
@@ -61,11 +60,9 @@ export default class extends Component {
       <div>
         <div
           style={{
-            maxWidth: 1000,
             margin: '0 auto'
           }}
         >
-          <Statistics/>
           <UsersTable
             users={users}
             createUserEditDialogOpen={this.createUserEditDialogOpen}

@@ -9,17 +9,44 @@ import TableCell from '@material-ui/core/TableCell/TableCell';
 import TableBody from '@material-ui/core/TableBody/TableBody';
 import TextField from '@material-ui/core/TextField/TextField';
 import UsersAPI from 'services/UsersAPI';
+import Select from '@material-ui/core/Select';
 
 export default class extends Component {
   state = {
     name: '',
     surname: '',
     age: '',
+    cityId: '',
+    genderId: '',
+    cities: [],
+    genders: [],
   };
 
   componentDidMount() {
     this.getAllUsers();
+    this.getCities();
+    this.getGenders();
   }
+
+  getCities = () => {
+     UsersAPI.getCities()
+       .then(resp => resp.json())
+       .then(resp => {
+         this.setState({
+           cities: resp,
+         })
+       });
+  };
+
+  getGenders = () => {
+    UsersAPI.getGenders()
+      .then(resp => resp.json())
+      .then(resp => {
+        this.setState({
+          genders: resp,
+        })
+      });
+  };
 
   getAllUsers = () => {
     const {
@@ -41,9 +68,11 @@ export default class extends Component {
       name,
       surname,
       age,
+      cityId,
+      genderId,
     } = this.state;
 
-    if (!name || !surname || !age){
+    if (!name || !surname || !age || !cityId || !genderId){
       return alert('заповніть всі поля !');
     }
 
@@ -53,6 +82,8 @@ export default class extends Component {
         name,
         surname,
         age,
+        cityId,
+        genderId,
         userId: null
       }
     ]);
@@ -61,12 +92,16 @@ export default class extends Component {
       name: '',
       surname: '',
       age: '',
+      cityId: '',
+      genderId: '',
     });
 
     UsersAPI.addUser({
       name,
       surname,
       age,
+      cityId,
+      genderId,
     }).then(this.getAllUsers)
   };
 
@@ -88,6 +123,8 @@ export default class extends Component {
       name,
       surname,
       age,
+      cityId,
+      genderId,
     } = this.state;
 
     return (
@@ -119,6 +156,8 @@ export default class extends Component {
               <TableCell>Ім'я</TableCell>
               <TableCell>Прізвище</TableCell>
               <TableCell>Вік</TableCell>
+              <TableCell>Місто</TableCell>
+              <TableCell>Гендер</TableCell>
               <TableCell>Опції</TableCell>
             </TableRow>
           </TableHead>
@@ -138,6 +177,12 @@ export default class extends Component {
                     </TableCell>
                      <TableCell>
                       {row.age}
+                    </TableCell>
+                    <TableCell>
+                       {this.state.cities[row.cityId - 1]}
+                    </TableCell>
+                     <TableCell>
+                       {this.state.genders[row.genderId - 1]}
                     </TableCell>
                     <TableCell>
                       <IconButton
@@ -186,6 +231,32 @@ export default class extends Component {
                    onChange={this.createFieldChangeHandler('age')}
                    placeholder="вік"
                  />
+              </TableCell>
+              <TableCell>
+                <Select
+                  variant="outlined"
+                  value={cityId}
+                  onChange={this.createFieldChangeHandler('cityId')}
+                >
+                  {
+                    this.state.cities.map((city, index) => (
+                      <option value={index + 1} key={index}>{city}</option>
+                    ))
+                  }
+                </Select>
+              </TableCell>
+              <TableCell>
+                <Select
+                  variant="outlined"
+                  value={genderId}
+                  onChange={this.createFieldChangeHandler('genderId')}
+                >
+                  {
+                    this.state.genders.map((gender, index) => (
+                      <option value={index + 1} key={index}>{gender}</option>
+                    ))
+                  }
+                </Select>
               </TableCell>
               <TableCell>
                 <IconButton

@@ -4,6 +4,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typograpy from '@material-ui/core/Typography';
 import {Switch, Route, BrowserRouter as Router, Link} from 'react-router-dom';
 import MainPage from 'pages/MainPage';
+import StatisticsPage from 'pages/StatisticsPage';
 import Button from '@material-ui/core/Button';
 
 class App extends Component {
@@ -32,22 +33,39 @@ class App extends Component {
                      display: 'flex',
                      justifyContent: 'center',
                      alignItems: 'center',
+                     flexDirection: 'column',
                      width: '100%',
                      height: '100vh'
                    }}
                  >
-                   <Button
-                     component={Link}
-                     to="/details"
-                     color="primary"
-                     variant="contained"
-                   >
-                     Переглянути вміст
-                   </Button>
+                   <div>
+                     <Button
+                       component={Link}
+                       to="/details"
+                       color="primary"
+                       variant="contained"
+                     >
+                       Переглянути вміст
+                     </Button>
+                   </div>
+                   <div>
+                     <Button
+                       component={Link}
+                       to="/statistics"
+                       color="primary"
+                       variant="contained"
+                       style={{
+                        marginTop: 16,
+                       }}
+                     >
+                       Статистика
+                     </Button>
+                   </div>
                  </div>
                }
              />
             <Route path="/details" component={MainPage}/>
+            <Route path="/statistics" component={StatisticsPage}/>
           </Switch>
         </div>
       </Router>

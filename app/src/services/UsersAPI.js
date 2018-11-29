@@ -3,6 +3,18 @@ export default class UsersAPI {
     fetch('/api/users/get_all')
   );
 
+  static getCities = () => (
+    fetch('/api/users/get_cities')
+  );
+
+  static getGenders = () => (
+    fetch('/api/users/get_genders')
+  );
+
+  static getFullSubscribers = () => (
+    fetch('/api/users/get_full_subscribers')
+  );
+
   static addUser = params => (
     fetch('/api/users/add', {
       method: 'POST',

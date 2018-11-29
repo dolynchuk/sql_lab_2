@@ -14,10 +14,12 @@ def create():
     name = request_params.get('name')
     surname = request_params.get('surname')
     age = request_params.get('age')
-    if not name or not surname or not age:
+    city_id = request_params.get('cityId')
+    gender_id = request_params.get('genderId')
+    if not name or not surname or not age or not city_id or not gender_id:
         return 'ERROR'
 
-    Users.create(name, surname, age)
+    Users.create(name, surname, age, city_id, gender_id)
     db.session.commit()
     return 'OK'
 
@@ -53,7 +55,9 @@ def get_all():
             'userId': user.user_id,
             'name': user.name,
             'surname': user.surname,
-            'age': user.age
+            'age': user.age,
+            'cityId': user.city_id,
+            'genderId': user.gender_id
         })
 
     return jsonify(result)
@@ -66,11 +70,13 @@ def add():
     name = request_params.get('name')
     surname = request_params.get('surname')
     age = request_params.get('age')
+    city_id = request_params.get('cityId')
+    gender_id = request_params.get('genderId')
 
-    if not name or not surname or not age:
+    if not name or not surname or not age or not city_id or not gender_id:
         return 'ERROR'
 
-    Users.create(name, surname, age)
+    Users.create(name, surname, age, city_id, gender_id)
     db.session.commit()
 
     return 'OK'
@@ -110,6 +116,40 @@ def get_users_with_similar_subscriptions_count():
     return jsonify(result)
 
 
+@users.route('/get_full_subscribers', methods=['POST', 'GET'])
+def get_full_subscribers():
+    selected = db.session.execute('''
+        SELECT
+            users.user_id,
+            users.name,
+            users.surname,
+            users.age,
+            users.city_id,
+            users.gender_id 
+        FROM users 
+        LEFT JOIN groups_users ON users.user_id=groups_users.user_id 
+        GROUP BY users.user_id 
+        HAVING COUNT(*) = (
+            SELECT COUNT(*) FROM groups
+        )
+    ''')
+
+    result = []
+    for user in selected:
+        result.append({
+            'userId': user.user_id,
+            'name': user.name,
+            'surname': user.surname,
+            'age': user.age,
+            'cityId': user.city_id,
+            'genderId': user.gender_id,
+        })
+
+    return jsonify(result)
+
+
+
+
 @users.route('/get_similar', methods=['POST'])
 def get_similar():
     request_params = request.get_json()
@@ -120,22 +160,50 @@ def get_similar():
 
     selected = db.session.execute('''
         SELECT 
-            u_1.user_id,
-            u_1.name,
-            u_1.surname,
-            u_1.age 
-        FROM users AS u_1 
-        JOIN groups_users AS gu_1 ON gu_1.user_id = u_1.user_id 
-        WHERE gu_1.group_id IN (
-            SELECT gu.group_id FROM users AS u
-            JOIN groups_users AS gu ON gu.user_id = u.user_id
-        ) 
-        GROUP BY u_1.user_id 
-        HAVING COUNT(gu_1.group_id) = (
-            SELECT COUNT(groups_users.group_id) FROM users
-            JOIN groups_users ON groups_users.user_id = users.user_id
+            Y.user_id,
+            Y.name,
+            Y.surname,
+            Y.age,
+            Y.city_id,
+            Y.gender_id,
+            Y.count
+        FROM  (
+            SELECT
+                X.user_id,
+                X.name,
+                X.surname,
+                X.age,
+                X.city_id,
+                X.gender_id,
+                groups_users.group_id,
+                COUNT(*) as count
+            FROM
+                (
+                    SELECT 
+                        users.user_id,
+                        users.name,
+                        users.surname,
+                        users.age,
+                        users.city_id,
+                        users.gender_id
+                    FROM users
+                    LEFT JOIN groups_users as GU ON GU.user_id = users.user_id 
+                    GROUP BY users.user_id
+                ) as X
+                LEFT JOIN groups_users ON groups_users.user_id = X.user_id
+                GROUP BY X.user_id
+                HAVING groups_users.group_id IN (
+                SELECT groups_users.group_id FROM groups_users
+                JOIN users ON users.user_id = groups_users.user_id
+                WHERE users.user_id={user_id}
+            )
+        ) as Y WHERE count = (
+            SELECT
+                COUNT(*) 
+            FROM users
+            LEFT JOIN groups_users ON users.user_id = groups_users.user_id
             WHERE users.user_id = {user_id}
-        ) AND u_1.user_id != {user_id}
+        ) AND Y.user_id != {user_id}
     '''.format(user_id=user_id))
 
     result = []
@@ -144,8 +212,42 @@ def get_similar():
             'userId': user.user_id,
             'name': user.name,
             'surname': user.surname,
-            'age': user.age
+            'age': user.age,
+            'cityId': user.city_id,
+            'genderId': user.gender_id,
         })
+
+    return jsonify(result)
+
+
+@users.route('/get_cities')
+def get_cities():
+    selected = db.session.execute('''
+        SELECT 
+            name
+        FROM cities
+        ORDER BY city_id
+    ''')
+
+    result = []
+    for row in selected:
+        result.append(row.name)
+
+    return jsonify(result)
+
+
+@users.route('/get_genders')
+def get_genders():
+    selected = db.session.execute('''
+        SELECT 
+            name
+        FROM genders
+        ORDER BY gender_id
+    ''')
+
+    result = []
+    for row in selected:
+        result.append(row.name)
 
     return jsonify(result)
 
@@ -165,7 +267,9 @@ def get_user_by_id():
         'userId': user.user_id,
         'name': user.name,
         'surname': user.surname,
-        'age': user.age
+        'age': user.age,
+        'cityId': user.city_id,
+        'genderId': user.gender_id,
     })
 
 
@@ -176,15 +280,17 @@ def update():
     name = request_params.get('name')
     surname = request_params.get('surname')
     age = request_params.get('age')
+    city_id = request_params.get('cityId')
+    gender_id = request_params.get('genderId')
 
-    if not user_id or not name or not surname or not age:
+    if not user_id or not name or not surname or not age or not city_id or not gender_id:
         return 'ERROR'
 
     user_model = Users.query.get(user_id)
     if not user_model:
         return 'ERROR'
 
-    user_model.update(name, surname, age)
+    user_model.update(name, surname, age, city_id, gender_id)
     return 'OK'
 
 
@@ -199,12 +305,9 @@ def delete():
     if not user_model:
         return 'ERROR'
 
-    groups_users_list = GroupsUsers.query.filter_by(
+    GroupsUsers.query.filter_by(
         user_id=user_id
-    ).all()
-
-    for groups_users_model in groups_users_list:
-        db.session.delete(groups_users_model)
+    ).delete()
 
     db.session.delete(user_model)
     db.session.commit()

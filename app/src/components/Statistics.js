@@ -14,6 +14,7 @@ export default class Statistics extends Component {
     groups: [],
     subscriptionsCountFilterValue: 0,
     ageFilterValue: 0,
+    fullSubscribers: [],
   };
 
   handleSubscriptionsCountFilterValueChange = event => {
@@ -93,10 +94,26 @@ export default class Statistics extends Component {
             groups: []
           });
         }
-      })
+      });
+
+    UsersAPI.getFullSubscribers()
+      .then(resp => resp.json())
+      .then(resp => {
+        if (resp){
+           this.setState({
+          fullSubscribers: resp,
+          });
+        } else {
+          this.setState({
+            fullSubscribers: [],
+          });
+        }
+      });
   }
 
   render(){
+    console.log(this.state.fullSubscribers);
+
     return (
       <Card
         style={{
@@ -166,6 +183,7 @@ export default class Statistics extends Component {
                 marginLeft: 16,
               }}
             />
+            років
           </Typograpy>
           {
             this.state.groups.map((value, index) => (
@@ -175,6 +193,30 @@ export default class Statistics extends Component {
               >
                 <ListItemText>
                   {value.name}
+                </ListItemText>
+              </ListItem>
+            ))
+          }
+        </List>
+         <List>
+          <Typograpy
+            color="inherit"
+            variant="h6"
+            gutterBottom
+            style={{
+              marginTop: 16,
+            }}
+          >
+             Підписники що підписані на всі групи
+          </Typograpy>
+          {
+            this.state.fullSubscribers.map((value, index) => (
+              <ListItem
+                button
+                key={index}
+              >
+                <ListItemText>
+                  {value.name} {value.surname}
                 </ListItemText>
               </ListItem>
             ))

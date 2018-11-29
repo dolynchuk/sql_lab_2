@@ -12,6 +12,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Switch from '@material-ui/core/Switch';
 import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
+import Select from '@material-ui/core/Select';
 import UsersAPI from 'services/UsersAPI';
 import GroupsAPI from 'services/GroupsAPI';
 
@@ -21,8 +22,12 @@ export default class UserEditDialog extends Component {
     surname: '',
     userId: '',
     age: '',
+    cityId: '',
+    genderId: '',
     groupsList: [],
     similarUsersList: [],
+    cities: [],
+    genders: []
   };
 
   componentDidUpdate(prevProps){
@@ -36,6 +41,8 @@ export default class UserEditDialog extends Component {
         surname: '',
         age: '',
         userId: '',
+        cityId: '',
+        genderId: '',
         groupsList: [],
         similarUsersList: [],
       });
@@ -47,7 +54,9 @@ export default class UserEditDialog extends Component {
             name: resp.name,
             surname: resp.surname,
             age: resp.age,
-            userId: resp.userId
+            userId: resp.userId,
+            cityId: resp.cityId,
+            genderId: resp.genderId,
           })
         });
 
@@ -78,6 +87,9 @@ export default class UserEditDialog extends Component {
             })
           }
         );
+
+      this.getCities();
+      this.getGenders();
     }
   }
 
@@ -97,7 +109,8 @@ export default class UserEditDialog extends Component {
                onUsersChange(
                  resp.filter(user => user.userId !== userId)
                )
-            })
+            });
+          window.location.reload();
         }
       )
   };
@@ -108,6 +121,8 @@ export default class UserEditDialog extends Component {
       surname,
       age,
       userId,
+      cityId,
+      genderId,
     } = this.state;
 
     const {
@@ -119,6 +134,8 @@ export default class UserEditDialog extends Component {
       surname,
       age,
       userId,
+      cityId,
+      genderId,
     }).then(
       () => {
         UsersAPI.getAllUsers()
@@ -128,6 +145,26 @@ export default class UserEditDialog extends Component {
           });
       }
     )
+  };
+
+  getCities = () => {
+     UsersAPI.getCities()
+       .then(resp => resp.json())
+       .then(resp => {
+         this.setState({
+           cities: resp,
+         })
+       });
+  };
+
+  getGenders = () => {
+    UsersAPI.getGenders()
+      .then(resp => resp.json())
+      .then(resp => {
+        this.setState({
+          genders: resp,
+        })
+      });
   };
 
   handleNameChange = event => {
@@ -145,6 +182,18 @@ export default class UserEditDialog extends Component {
   handleAgeChange = event => {
     this.setState({
       age: event.target.value,
+    });
+  };
+
+  handleCityIdChange = event => {
+    this.setState({
+      cityId: event.target.value,
+    });
+  };
+
+   handleGenderIdChange = event => {
+    this.setState({
+      genderId: event.target.value,
     });
   };
 
@@ -211,6 +260,8 @@ export default class UserEditDialog extends Component {
       name,
       surname,
       age,
+      cityId,
+      genderId,
       groupsList,
       similarUsersList,
     } = this.state;
@@ -283,6 +334,32 @@ export default class UserEditDialog extends Component {
                   marginBottom: 8,
                 }}
               />
+            </div>
+            <div>
+              <Select
+                  variant="outlined"
+                  value={cityId}
+                  onChange={this.handleCityIdChange}
+                >
+                  {
+                    this.state.cities.map((value, index) => (
+                      <option value={index + 1} key={index}>{value}</option>
+                    ))
+                  }
+                </Select>
+            </div>
+            <div>
+              <Select
+                  variant="outlined"
+                  value={genderId}
+                  onChange={this.handleGenderIdChange}
+                >
+                  {
+                    this.state.genders.map((value, index) => (
+                      <option value={index + 1} key={index}>{value}</option>
+                    ))
+                  }
+                </Select>
             </div>
             <Button
               variant="contained"
