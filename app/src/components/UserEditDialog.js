@@ -22,6 +22,7 @@ export default class UserEditDialog extends Component {
     userId: '',
     age: '',
     groupsList: [],
+    similarUsersList: [],
   };
 
   componentDidUpdate(prevProps){
@@ -36,6 +37,7 @@ export default class UserEditDialog extends Component {
         age: '',
         userId: '',
         groupsList: [],
+        similarUsersList: [],
       });
 
       UsersAPI.getUserById({userId})
@@ -66,6 +68,16 @@ export default class UserEditDialog extends Component {
               })
             });
         });
+
+      UsersAPI.getSimilar({userId})
+        .then(resp => resp.json())
+        .then(
+          resp => {
+            this.setState({
+              similarUsersList: resp
+            })
+          }
+        );
     }
   }
 
@@ -178,6 +190,14 @@ export default class UserEditDialog extends Component {
       GroupsAPI.getAllGroups()
         .then(resp => resp.json())
         .then(onGroupsChange)
+
+      UsersAPI.getSimilar({userId})
+        .then(resp => resp.json())
+        .then(resp => {
+          this.setState({
+            similarUsersList: resp,
+          });
+        })
     }
   );
 
@@ -192,6 +212,7 @@ export default class UserEditDialog extends Component {
       surname,
       age,
       groupsList,
+      similarUsersList,
     } = this.state;
 
     return (
@@ -302,7 +323,32 @@ export default class UserEditDialog extends Component {
                 )
               )
             }
-             <Divider/>
+            <Divider/>
+            </List>
+            <Typography
+              variant="h6"
+              style={{
+                marginTop: 16,
+              }}
+            >
+              Користувачі з такими ж підписками
+            </Typography>
+            <List>
+            {
+              similarUsersList.map(
+                (user, index) => (
+                  <ListItem
+                    button
+                    key={index}
+                  >
+                    <ListItemText>
+                      {user.name} {user.surname}
+                    </ListItemText>
+                  </ListItem>
+                )
+              )
+            }
+            <Divider/>
             </List>
           </div>
           <Button

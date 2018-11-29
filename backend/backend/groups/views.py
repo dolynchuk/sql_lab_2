@@ -19,6 +19,27 @@ def create():
     return 'OK'
 
 
+@groups.route('/get_groups_with_subscribers_age_min', methods=['POST'])
+def get_groups_with_subscribers_age_min():
+    request_params = request.get_json()
+    min = request_params.get('min') or 0
+
+    selected = db.session.execute('''
+        SELECT groups.name FROM groups
+        JOIN groups_users ON groups.group_id = groups_users.group_id
+        JOIN users ON groups_users.user_id=users.user_id AND users.age > {min}
+        GROUP BY groups.group_id;
+    '''.format(min=min))
+
+    result = []
+    for group in selected:
+        result.append({
+            'name': group.name,
+        })
+
+    return jsonify(result)
+
+
 @groups.route('/get_group_by_id', methods=['POST'])
 def get_group_by_id():
     request_params = request.get_json()

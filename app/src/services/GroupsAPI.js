@@ -3,6 +3,16 @@ export default class API {
     fetch('/api/groups/get_all')
   );
 
+  static getGroupsWithSubscribersAgeMin = params => (
+    fetch('/api/groups/get_groups_with_subscribers_age_min', {
+      method: 'POST',
+      body: JSON.stringify(params),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    })
+  );
+
   static getGroupById = params => (
     fetch('/api/groups/get_group_by_id', {
       method: 'POST',

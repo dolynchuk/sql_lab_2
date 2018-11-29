@@ -3,7 +3,7 @@ export default class UsersAPI {
     fetch('/api/users/get_all')
   );
 
-  static addUser = (params) => (
+  static addUser = params => (
     fetch('/api/users/add', {
       method: 'POST',
       body: JSON.stringify(params),
@@ -13,7 +13,27 @@ export default class UsersAPI {
     })
   );
 
-  static getUserById = (params) => (
+  static getUsersWithSimilarSubscriptionsCount = params => (
+    fetch('/api/users/get_users_with_similar_subscriptions_count', {
+      method: 'POST',
+      body: JSON.stringify(params),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    })
+  );
+
+  static getSimilar = params => (
+    fetch('/api/users/get_similar', {
+      method: 'POST',
+      body: JSON.stringify(params),
+      headers: {
+        'Content-type': 'application/json',
+      },
+    })
+  );
+
+  static getUserById = params => (
     fetch('/api/users/get_user_by_id', {
       method: 'POST',
       body: JSON.stringify(params),
